@@ -33,7 +33,7 @@ def read_file(file_name):
     return actions
 
 def main():
-    moves = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/cube.gcode')
+    moves = read_file('./cube.gcode')
     print(float(str(moves[50]['X'])[1:]))
     pts = []
     for move in moves:
