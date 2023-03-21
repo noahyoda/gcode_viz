@@ -9,10 +9,10 @@
 ;MAXY:146.5
 ;MAXZ:40
 ;Generated with Cura_SteamEngine main
-M140 S60
+M140 S60; set bed temp 60c
 M105
 M190 S60
-M104 S200
+M104 S200; set extruder temp 200c
 M105
 M109 S200
 M82 ;absolute extrusion mode
