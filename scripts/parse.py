@@ -9,6 +9,8 @@ line.block.modal_params # list of modal parameters
 line.godes[0].description # G-code description (e.g. 'G1')
 '''
 
+e_temp = 0.0
+
 def read_file(file_name, layer_nums):
     line = ''
     actions = []
