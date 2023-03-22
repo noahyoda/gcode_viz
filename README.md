@@ -1,5 +1,17 @@
 # singed_slices
 
+Tasks Complete
+- Write project description
+- Setup git and other project tools
+- Generate simple cube sample gcode
+- Write script to parse gcode
+- Write Progress Report
+
+Progress
+- write shape viewing script
+- write simulation drawing script
+- write heat diffusion script
+- extract temp and speed from gcode script
 
 Project Board 
 - https://trello.com/b/f7vdvp7X/project-overview
