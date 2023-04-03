@@ -1,11 +1,48 @@
 import pygame, math
 import numpy as np
+import simulator
 
 # window settings
 sc_width = 800
 sc_height = 600
 fps = 60
 pause = False
+
+def project(angle_x, angle_y, vertices, center_pt, scale):
+    # x and y rotation axes are swapped
+    rotation_matrix_y = [
+        [1,0,0],
+        [0, math.cos(angle_y), math.sin(angle_y)],
+        [0, -math.sin(angle_y), math.cos(angle_y)]
+    ]
+
+    rotation_matrix_x = [
+        [math.cos(angle_x), 0, math.sin(angle_x)],
+        [0,1,0],
+        [-math.sin(angle_x), 0, math.cos(angle_x)]
+    ]
+
+    rotation_matrix = np.matmul(rotation_matrix_x, rotation_matrix_y)
+
+    z = 0.5
+    # projection matrix
+    proj_matrix = [
+        [z, 0, 0],
+        [0, z, 0]
+    ]
+
+    # compute final matrix
+    proj_matrix = np.matmul(proj_matrix, rotation_matrix)
+    proj_verts = []
+
+    # project vertices to 2d coords
+    for p in vertices:
+        projected = np.matmul(proj_matrix, np.transpose(p))
+        x = center_pt['x'] + projected[0] * scale
+        y = center_pt['y'] + projected[1] * scale
+        proj_verts.append([x, y])
+    
+    return proj_verts
 
 def start_game():
     # init pygame settings
@@ -50,6 +87,7 @@ def start_game():
     pause = False
     move_view = False
     m_pos = (0,0)
+    sim_pts = simulator.get_points()
 
     # game loop
     while running:
@@ -63,6 +101,11 @@ def start_game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     pause = not pause
+            # mouse events
+            # zoom in/out events
+            if event.type == pygame.MOUSEWHEEL:
+                scale += event.y * 10
+            # moving view events
             if not move_view and event.type == pygame.MOUSEBUTTONDOWN:
                 move_view = True
                 mx = pygame.mouse.get_pos()
@@ -74,39 +117,9 @@ def start_game():
                 angle_y += (cm_pos[1] - m_pos[1]) / 100
                 m_pos = cm_pos
 
-        # x and y rotation axes are swapped
-        rotation_matrix_y = [
-            [1,0,0],
-            [0, math.cos(angle_y), -math.sin(angle_y)],
-            [0, math.sin(angle_y), math.cos(angle_y)]
-        ]
-
-        rotation_matrix_x = [
-            [math.cos(angle_x), 0, math.sin(angle_x)],
-            [0,1,0],
-            [-math.sin(angle_x), 0, math.cos(angle_x)]
-        ]
-
-        rotation_matrix = np.matmul(rotation_matrix_x, rotation_matrix_y)
-
-
-        z = 0.5
-        # projection matrix
-        proj_matrix = [
-            [z, 0, 0],
-            [0, z, 0]
-        ]
-
-        # compute final matrix
-        proj_matrix = np.matmul(proj_matrix, rotation_matrix)
-        proj_verts = []
-
-        # project vertices to 2d coords
-        for p in cube_vertices:
-            projected = np.matmul(proj_matrix, np.transpose(p))
-            x = cube_center['x'] + projected[0] * scale
-            y = cube_center['y'] + projected[1] * scale
-            proj_verts.append([x, y])
+        # project points from 3d to 2d
+        #proj_verts = project(angle_x, angle_y, cube_vertices, cube_center, scale)
+        proj_verts = project(angle_x, angle_y, sim_pts, cube_center, scale)
 
         # draw vertices as circles:
         for p in proj_verts:
