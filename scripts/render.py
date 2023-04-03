@@ -43,16 +43,18 @@ def start_game():
         [2, 3, 7, 6]
     ]
 
-    angle = 0
+    angle_x = 0
+    angle_y = 0
     scale = 200
     running = True
     pause = False
+    move_view = False
+    m_pos = (0,0)
 
     # game loop
     while running:
         clock.tick(fps)
         screen.fill(bkg)
-        angle += 0.02
 
         # process window events
         for event in pygame.event.get():
@@ -61,15 +63,34 @@ def start_game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     pause = not pause
-                    
-        rotation_matrix = [
+            if not move_view and event.type == pygame.MOUSEBUTTONDOWN:
+                move_view = True
+                mx = pygame.mouse.get_pos()
+            elif move_view and event.type == pygame.MOUSEBUTTONUP:
+                move_view = False
+            if move_view:
+                cm_pos = pygame.mouse.get_pos()
+                angle_x += (cm_pos[0] - m_pos[0]) / 100
+                angle_y += (cm_pos[1] - m_pos[1]) / 100
+                m_pos = cm_pos
+
+        # x and y rotation axes are swapped
+        rotation_matrix_y = [
             [1,0,0],
-            [0, math.cos(angle), -math.sin(angle)],
-            [0, math.sin(angle), math.cos(angle)]
+            [0, math.cos(angle_y), -math.sin(angle_y)],
+            [0, math.sin(angle_y), math.cos(angle_y)]
         ]
 
-        z = 0.5
+        rotation_matrix_x = [
+            [math.cos(angle_x), 0, math.sin(angle_x)],
+            [0,1,0],
+            [-math.sin(angle_x), 0, math.cos(angle_x)]
+        ]
 
+        rotation_matrix = np.matmul(rotation_matrix_x, rotation_matrix_y)
+
+
+        z = 0.5
         # projection matrix
         proj_matrix = [
             [z, 0, 0],
