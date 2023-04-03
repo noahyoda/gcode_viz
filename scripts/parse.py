@@ -50,6 +50,34 @@ def read_file(file_name, layer_nums):
                     continue
     return actions
 
+def get_end_points():
+    layers = [i for i in range(1, 200, 5)]
+    moves = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode', layers)
+    pts = []
+    e_pos = 0.0
+    z_last = 0.0
+    x_last = 0.0
+    y_last = 0.0
+    for move in moves:
+        x = float(str(move['X'])[1:]) if 'X' in move else x_last
+        y = float(str(move['Y'])[1:]) if 'Y' in move else y_last
+        z = float(str(move['Z'])[1:]) if 'Z' in move else z_last
+        # check if extruding
+        e = move['E'] if 'E' in move else e_pos
+        # tmp only add if extruding
+        if e_pos < e:
+            pts.append([x, y, z])
+        e_pos = e
+        x_last = x
+        y_last = y
+        z_last = z
+    # plot pts
+    x = [pt[0] for pt in pts]
+    y = [pt[1] for pt in pts]
+    z = [pt[2] for pt in pts]
+    pts = [[x[i], y[i], z[i]] for i in range(len(x))]
+    return pts
+
 def main(layer):
     #layers = [i for i in range(0, 200, 10)]
     layers = [i for i in range(1, 200, 5)]
