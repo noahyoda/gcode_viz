@@ -105,6 +105,7 @@ def start_game():
             # zoom in/out events
             if event.type == pygame.MOUSEWHEEL:
                 scale += event.y * 10
+                scale = scale if scale > 10 else 10
             # moving view events
             if not move_view and event.type == pygame.MOUSEBUTTONDOWN:
                 move_view = True
@@ -118,8 +119,8 @@ def start_game():
                 m_pos = cm_pos
 
         # project points from 3d to 2d
-        #proj_verts = project(angle_x, angle_y, cube_vertices, cube_center, scale)
-        proj_verts = project(angle_x, angle_y, sim_pts, cube_center, scale)
+        proj_verts = project(angle_x, angle_y, cube_vertices, cube_center, scale)
+        #proj_verts = project(angle_x, angle_y, sim_pts, cube_center, scale)
 
         # draw vertices as circles:
         for p in proj_verts:
