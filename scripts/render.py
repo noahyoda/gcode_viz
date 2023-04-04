@@ -48,10 +48,6 @@ def project(angle_x, angle_y, vertices, center_pt, scale):
     
     return proj_verts
 
-def draw_tube(start, end, radius):
-    # given a start point, end point, and radius draw a tube
-    pass
-
 def start_game():
     # init pygame settings
     pygame.init()
@@ -158,6 +154,13 @@ def start_game():
             if p[0] > 0 and p[1] > 0 and p[0] < sc_width and p[1] < sc_height:
                 pygame.draw.circle(screen, circle_color, (p[0], p[1]), 8)
         
+        # draw tubes between vertices
+        #pygame.draw.line(screen, shape, (proj_verts[0][0], proj_verts[0][1]), (proj_verts[1][0], proj_verts[1][1]), 20)
+        shapes = sim.get_shapes()
+        for i in shapes:
+            pygame.draw.line(screen, i.color, i.start, i.end, 20) 
+
+
         # draw cube sides:
         '''
         counter = 1
