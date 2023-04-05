@@ -79,6 +79,7 @@ def get_end_points():
         # tmp only add if extruding
         if e_pos < e:
             pts.append([x, y, z, f])
+        f_rate = f
         e_pos = e
         x_last = x
         y_last = y

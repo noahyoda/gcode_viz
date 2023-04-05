@@ -54,7 +54,7 @@ class Sim:
         self.step_counter += 1
         next = self.pts[self.step_counter]
         # do math to get next point between current and next given f_rate and dt
-        f_rate = next[3] * 60   # convert mm/min to mm/sec
+        f_rate = next[3] / 60   # convert mm/min to mm/sec
         next_point = self.get_next_point([self.x_pos, self.y_pos, self.z_pos], next, f_rate, self.dt)
         
         # then create step object 
@@ -92,12 +92,8 @@ class Sim:
             if pt[2] > max_z:
                 max_z = pt[2]
         m = max(max_x, max_y, max_z)
-        for pt in self.pts:
-            pt[0] = (pt[0] - ax) / m
-            pt[1] = (pt[1] - ay) / m
-            pt[2] = (pt[2] - az) / m
         
-        return [ax, ay, az]
+        return [ax, ay, az], m
 
 # tmp function for debugging renderer
 def get_points():

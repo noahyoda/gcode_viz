@@ -7,7 +7,6 @@ sc_width = 800
 sc_height = 600
 fps = 60
 pause = False
-sim = simulator.Sim()
 
 def project(angle_x, angle_y, vertices, center_pt, scale):
     # x and y rotation axes are swapped
@@ -57,35 +56,13 @@ def start_game():
     clock = pygame.time.Clock()
     cube_center = {'y': sc_height // 2, 'x': sc_width // 2}
 
+    sim = simulator.Sim()
 
     # colors
     bkg = (240, 235, 240)
-    circle_color = (255, 0, 70)
 
-    # points
-    cube_vertices = [
-        [-1, -1, 1],
-        [1,-1,1],
-        [1, 1, 1],
-        [-1, 1, 1],
-        [-1, -1, -1],
-        [1, -1, -1],
-        [1, 1, -1],
-        [-1, 1, -1]
-    ]
-
-    # cube sides, each entry is an index in cube_vertices:
-    cube_sides = [
-        [0, 1, 2, 3],
-        [4, 5, 6, 7],
-        [1, 2, 6, 5],
-        [0, 3, 7, 4],
-        [0, 1, 5, 4],
-        [2, 3, 7, 6]
-    ]
-
-    scale = 5
-    center = sim.get_center()
+    center, m = sim.get_center()
+    scale = m
     center = {'x': center[0], 'y': center[1], 'z': center[2]}
     angle_x = 0
     angle_y = 0
@@ -93,9 +70,10 @@ def start_game():
     pause = False
     move_view = False
     m_pos = (0,0)
-    sim_delay = 60
+    sim_delay = 15
     sim_delay_counter = 0
     shapes = []
+    
     '''
     sim_pts = sim.get_points()
     
@@ -130,28 +108,28 @@ def start_game():
                 angle_y += (cm_pos[1] - m_pos[1]) / 100
                 m_pos = cm_pos
 
-        # project points from 3d to 2d
-        #proj_verts = project(angle_x, angle_y, sim_pts, cube_center, scale)
-        #proj_verts = project(angle_x, angle_y, sim_pts, proj_center, scale)
-
-        # draw vertices as circles:
-        #for p in proj_verts:
-        #    if p[0] > 0 and p[1] > 0 and p[0] < sc_width and p[1] < sc_height:
-        #        pygame.draw.circle(screen, circle_color, (p[0], p[1]), 8)
-        
-        # draw tubes between vertices
-        #shapes = sim.get_shapes()
-        #for i in shapes:
-        #    pygame.draw.line(screen, i.color, i.start, i.end, 20) 
+ 
         if sim_delay_counter == sim_delay:
             sim_delay_counter = 0
             shapes = sim.step()
         
+        
+        #for pt in self.pts:
+        #    pt[0] = (pt[0] - ax) / m
+        #    pt[1] = (pt[1] - ay) / m
+        #    pt[2] = (pt[2] - az) / m
         for i in shapes:
-            s_pos = project(angle_x, angle_y, [i.start], center, scale)[0]
-            e_pos = project(angle_x, angle_y, [i.end], center, scale)[0]
-            pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
-            pygame.draw.circle(screen, i.color, s_pos, 2)
+            # normalize points
+            s_pos = [(i.start[0] - center['x']) / m, (i.start[1] - center['y']) / m, (i.start[2] - center['z']) / m]
+            e_pos = [(i.end[0] - center['x']) / m, (i.end[1] - center['y']) / m, (i.end[2] - center['z']) / m]
+            s_pos = project(angle_x, angle_y, [s_pos], center, scale)[0]
+            e_pos = project(angle_x, angle_y, [e_pos], center, scale)[0]
+            # if points are within bounds draw
+            if s_pos[0] > 0 and s_pos[1] > 0 and s_pos[0] < sc_width and s_pos[1] < sc_height and e_pos[0] > 0 and e_pos[1] > 0 and e_pos[0] < sc_width and e_pos[1] < sc_height:
+                #pygame.draw.circle(screen, i.color, s_pos, 10)
+                pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
+            
+            # draw for debugging
             pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
         sim_delay_counter += 1
  
