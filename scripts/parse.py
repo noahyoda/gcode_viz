@@ -7,6 +7,7 @@ line.comment.text   # comment text
 line.block.gcodes   # list of G-codes
 line.block.modal_params # list of modal parameters
 line.godes[0].description # G-code description (e.g. 'G1')
+F or Feed Rate is in mm/min
 '''
 
 e_temp = 0.0
@@ -17,7 +18,7 @@ def read_file(file_name, layer_nums):
     reading = False
     with open(file_name, 'r') as f:
         for block in f.readlines():
-            #print(block)
+            # get gcode object
             if 'M84' in block:
                 # disables steppers, means code is done
                 # cont because lib doesn't handle this
@@ -25,13 +26,17 @@ def read_file(file_name, layer_nums):
             else:
                 line = Line(block)
 
-            line.block.gcodes   # list of G-codes
-            line.block.modal_params # list of modal parameters
+            if 'M104' in line.text:
+                # set extruder temp
+                e_temp = float(str(line.text.split('S')[-1].split(';')[0]))
+                continue
+            #line.block.gcodes   # list of G-codes
+            #line.block.modal_params # list of modal parameters
             if line.comment:
                 if 'LAYER:' in line.comment.text:
                     # get layer number
                     layer_num = int(line.comment.text.split(':')[-1].split(';')[0])
-                    if layer_num not in layer_nums:
+                    if layer_num not in layer_nums and layer_nums != []:
                         reading = False
                     else:
                         reading = True
@@ -44,6 +49,9 @@ def read_file(file_name, layer_nums):
                         if 'E' in line.text:
                             e_pos = float(str(line.text.split('E')[-1].split(' ')[0]))
                             s['E'] = e_pos
+                        if 'F' in line.text:
+                            f_rate = float(str(line.text.split('F')[-1].split(' ')[0]))
+                            s['F'] = f_rate
 
                         actions.append(s)
                 except AttributeError:
@@ -51,9 +59,11 @@ def read_file(file_name, layer_nums):
     return actions
 
 def get_end_points():
+    # currently getting every 5th layer, pass empty list to get all layers
     layers = [i for i in range(1, 200, 5)]
     moves = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode', layers)
     pts = []
+    f_rate = 0.0
     e_pos = 0.0
     z_last = 0.0
     x_last = 0.0
@@ -64,9 +74,11 @@ def get_end_points():
         z = float(str(move['Z'])[1:]) if 'Z' in move else z_last
         # check if extruding
         e = move['E'] if 'E' in move else e_pos
+        # check if speed has changed
+        f = move['F'] if 'F' in move else f_rate
         # tmp only add if extruding
         if e_pos < e:
-            pts.append([x, y, z])
+            pts.append([x, y, z, f])
         e_pos = e
         x_last = x
         y_last = y
@@ -75,7 +87,7 @@ def get_end_points():
     x = [pt[0] for pt in pts]
     y = [pt[1] for pt in pts]
     z = [pt[2] for pt in pts]
-    pts = [[x[i], y[i], z[i]] for i in range(len(x))]
+    pts = [[x[i], y[i], z[i], f] for i in range(len(x))]
     return pts
 
 def main(layer):
