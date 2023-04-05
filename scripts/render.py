@@ -92,6 +92,16 @@ def start_game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     pause = not pause
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_RIGHT:
+                    center['x'] += 10 * scale/100
+                elif event.key == pygame.K_LEFT:
+                    center['x'] -= 10 * scale/100
+                elif event.key == pygame.K_UP:
+                    center['y'] -= 10 * scale/100
+                elif event.key == pygame.K_DOWN:
+                    center['y'] += 10 * scale/100
+
             # mouse events
             # zoom in/out events
             if event.type == pygame.MOUSEWHEEL:
@@ -104,8 +114,17 @@ def start_game():
                 move_view = False
             if move_view:
                 cm_pos = pygame.mouse.get_pos()
-                angle_x += (cm_pos[0] - m_pos[0]) / 100
-                angle_y += (cm_pos[1] - m_pos[1]) / 100
+                if cm_pos[0] - m_pos[0] > 35:
+                    angle_x += 2
+                elif cm_pos[0] - m_pos[0] < -35:
+                    angle_x -= 2
+                if cm_pos[1] - m_pos[1] > 35:
+                    angle_y += 2
+                elif cm_pos[1] - m_pos[1] < -35:
+                    angle_y -= 2
+                else:
+                    angle_x += (cm_pos[0] - m_pos[0]) / 100
+                    angle_y += (cm_pos[1] - m_pos[1]) / 100
                 m_pos = cm_pos
 
  
@@ -114,10 +133,6 @@ def start_game():
             shapes = sim.step()
         
         
-        #for pt in self.pts:
-        #    pt[0] = (pt[0] - ax) / m
-        #    pt[1] = (pt[1] - ay) / m
-        #    pt[2] = (pt[2] - az) / m
         for i in shapes:
             # normalize points
             s_pos = [(i.start[0] - center['x']) / m, (i.start[1] - center['y']) / m, (i.start[2] - center['z']) / m]
@@ -126,7 +141,6 @@ def start_game():
             e_pos = project(angle_x, angle_y, [e_pos], center, scale)[0]
             # if points are within bounds draw
             if s_pos[0] > 0 and s_pos[1] > 0 and s_pos[0] < sc_width and s_pos[1] < sc_height and e_pos[0] > 0 and e_pos[1] > 0 and e_pos[0] < sc_width and e_pos[1] < sc_height:
-                #pygame.draw.circle(screen, i.color, s_pos, 10)
                 pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
             
             # draw for debugging
