@@ -1,12 +1,13 @@
 import pygame, math
 import numpy as np
-import simulator as sim
+import simulator
 
 # window settings
 sc_width = 800
 sc_height = 600
 fps = 60
 pause = False
+sim = simulator.Sim()
 
 def project(angle_x, angle_y, vertices, center_pt, scale):
     # x and y rotation axes are swapped
@@ -59,7 +60,6 @@ def start_game():
 
     # colors
     bkg = (240, 235, 240)
-    shape = (255, 0, 70)
     circle_color = (255, 0, 70)
 
     # points
@@ -84,39 +84,24 @@ def start_game():
         [2, 3, 7, 6]
     ]
 
+    scale = 5
+    center = sim.get_center()
+    center = {'x': center[0], 'y': center[1], 'z': center[2]}
     angle_x = 0
     angle_y = 0
     running = True
     pause = False
     move_view = False
     m_pos = (0,0)
+    sim_delay = 60
+    sim_delay_counter = 0
+    shapes = []
+    '''
     sim_pts = sim.get_points()
-    # get center of points
-    ax = ay = az = 0
-    for pt in sim_pts:
-        ax += pt[0]
-        ay += pt[1]
-        az += pt[2]
-    ax /= len(sim_pts)
-    ay /= len(sim_pts)
-    az /= len(sim_pts)
-    # normalize points to be in range [-1,1]
-    max_x, max_y, max_z = 1,1,1
-    for pt in sim_pts:
-        if pt[0] > max_x:
-            max_x = pt[0]
-        if pt[1] > max_y:
-            max_y = pt[1]
-        if pt[2] > max_z:
-            max_z = pt[2]
-    m = max(max_x, max_y, max_z)
-    for pt in sim_pts:
-        pt[0] = (pt[0] - ax) / m
-        pt[1] = (pt[1] - ay) / m
-        pt[2] = (pt[2] - az) / m
     
     scale = m * 10
-    
+    '''
+        
     # game loop
     while running:
         clock.tick(fps)
@@ -146,37 +131,30 @@ def start_game():
                 m_pos = cm_pos
 
         # project points from 3d to 2d
-        proj_verts = project(angle_x, angle_y, sim_pts, cube_center, scale)
+        #proj_verts = project(angle_x, angle_y, sim_pts, cube_center, scale)
         #proj_verts = project(angle_x, angle_y, sim_pts, proj_center, scale)
 
         # draw vertices as circles:
-        for p in proj_verts:
-            if p[0] > 0 and p[1] > 0 and p[0] < sc_width and p[1] < sc_height:
-                pygame.draw.circle(screen, circle_color, (p[0], p[1]), 8)
+        #for p in proj_verts:
+        #    if p[0] > 0 and p[1] > 0 and p[0] < sc_width and p[1] < sc_height:
+        #        pygame.draw.circle(screen, circle_color, (p[0], p[1]), 8)
         
         # draw tubes between vertices
-        #pygame.draw.line(screen, shape, (proj_verts[0][0], proj_verts[0][1]), (proj_verts[1][0], proj_verts[1][1]), 20)
-        shapes = sim.get_shapes()
+        #shapes = sim.get_shapes()
+        #for i in shapes:
+        #    pygame.draw.line(screen, i.color, i.start, i.end, 20) 
+        if sim_delay_counter == sim_delay:
+            sim_delay_counter = 0
+            shapes = sim.step()
+        
         for i in shapes:
-            pygame.draw.line(screen, i.color, i.start, i.end, 20) 
-
-
-        # draw cube sides:
-        '''
-        counter = 1
-        for side in cube_sides:
-            side_coords = [
-                (proj_verts[side[0]][0], proj_verts[side[0]][1]),
-                (proj_verts[side[1]][0], proj_verts[side[1]][1]),
-                (proj_verts[side[2]][0], proj_verts[side[2]][1]),
-                (proj_verts[side[3]][0], proj_verts[side[3]][1])
-            ]
-            pygame.draw.polygon(screen, (
-                int(shape[0] * counter * 0.05), int(shape[1] * counter * 0.05),
-                int(shape[2] * counter * 0.05)), side_coords)
-            counter += 1
-            '''
-            
+            s_pos = project(angle_x, angle_y, [i.start], center, scale)[0]
+            e_pos = project(angle_x, angle_y, [i.end], center, scale)[0]
+            pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
+            pygame.draw.circle(screen, i.color, s_pos, 2)
+            pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
+        sim_delay_counter += 1
+ 
         # present the new image to screen:
         if not pause:
             pygame.display.update()
@@ -186,3 +164,22 @@ def start_game():
 
 if __name__ == "__main__":
     start_game()
+
+
+''' unused code for reference
+# draw cube sides:
+counter = 1
+for side in cube_sides:
+    side_coords = [
+        (proj_verts[side[0]][0], proj_verts[side[0]][1]),
+        (proj_verts[side[1]][0], proj_verts[side[1]][1]),
+        (proj_verts[side[2]][0], proj_verts[side[2]][1]),
+        (proj_verts[side[3]][0], proj_verts[side[3]][1])
+    ]
+    pygame.draw.polygon(screen, (
+        int(shape[0] * counter * 0.05), int(shape[1] * counter * 0.05),
+        int(shape[2] * counter * 0.05)), side_coords)
+    counter += 1
+
+    
+'''
