@@ -60,7 +60,7 @@ def read_file(file_name, layer_nums):
 
 def get_end_points():
     # currently getting every 5th layer, pass empty list to get all layers
-    layers = [i for i in range(1, 200, 5)]
+    layers = [i for i in range(0, 200, 10)]
     moves = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode', layers)
     pts = []
     f_rate = 0.0
@@ -93,7 +93,8 @@ def get_end_points():
 
 def main(layer):
     #layers = [i for i in range(0, 200, 10)]
-    layers = [i for i in range(1, 200, 5)]
+    #layers = [i for i in range(1, 200, 5)]
+    layers = [0]
     moves = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode', layers)
     pts = []
     e_pos = 0.0
@@ -124,10 +125,10 @@ def main(layer):
     ax.set_ylim(0, 200)
     ax.set_zlim(0, 40)
     ax.scatter(x, y, z)
-    plt.show()
+    #plt.show()
 
     plt.clf()
-    plt.plot(x, y)
+    plt.scatter(x, y)
     plt.show()
 
 if __name__ == '__main__':

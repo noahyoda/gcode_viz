@@ -1,4 +1,5 @@
 import parse
+from PIL import Image
 
 '''
 This file will be used to get points from the parser and report
@@ -6,10 +7,12 @@ the shapes/points/colors to be drawn in the render.
 '''
 
 class StepObj:
-    def __init__(self, start=(0,0,0), end=(0,0,0), color=(255, 0, 70)):
+    def __init__(self, start=(0,0,0), end=(0,0,0), color=(255, 0, 70), temp=200):
         self.start = start
         self.end = end
         self.color = color
+        self.age = 0
+        self.temp = temp
 
 class Sim:
     def __init__(self):
@@ -24,9 +27,23 @@ class Sim:
         self.x_pos = self.pts[0][0]
         self.y_pos = self.pts[0][1]
         self.z_pos = self.pts[0][2]
+        # temperature vars
+        self.max_temp = 255
+        self.temp_arr = self.read_temp_file()        
+
+    def read_temp_file(self):
+        # read ../gradient.png and return array of colors
+        im = Image.open('../gradient.png')
+        pix = im.load()
+        # read first row of pixels into array
+        arr = []
+        for i in range(im.size[0]):
+            arr.append(pix[i, 0])
+        return arr
 
     def get_color_temp(self, temp):
-        return (255, 0, 70)
+        p = temp / self.max_temp
+        return self.temp_arr[int(p * len(self.temp_arr))]
 
     def get_next_point(self, curr, next, f_rate, dt):
         '''
@@ -58,7 +75,7 @@ class Sim:
         next_point = self.get_next_point([self.x_pos, self.y_pos, self.z_pos], next, f_rate, self.dt)
         
         # then create step object 
-        curr = StepObj([self.x_pos, self.y_pos, self.z_pos], next_point, self.get_color_temp(self.e_temp))
+        curr = StepObj([self.x_pos, self.y_pos, self.z_pos], next_point, self.get_color_temp(self.e_temp), self.e_temp)
         # update position vars
         self.x_pos = next_point[0]
         self.y_pos = next_point[1]
@@ -67,8 +84,16 @@ class Sim:
         # then add step object to steps list
         self.steps.append(curr)
 
-        # [TODO] everything below
         # then update temperatures and step colors
+        # first update every step age
+        for s in self.steps:
+            s.age += 1  # amount of time steps this step has been alive
+        # then get temperature based on diffusion at age
+        # [TODO] insert diffusion function here
+        
+        # then update color based on temperature
+        for s in self.steps:
+            s.color = self.get_color_temp(s.temp)
         # then return steps list
         return self.steps
 

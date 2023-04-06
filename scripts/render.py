@@ -94,13 +94,13 @@ def start_game():
                     pause = not pause
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    center['x'] += 10 * scale/100
+                    center['x'] += 6000 / scale
                 elif event.key == pygame.K_LEFT:
-                    center['x'] -= 10 * scale/100
+                    center['x'] -= 6000 / scale
                 elif event.key == pygame.K_UP:
-                    center['y'] -= 10 * scale/100
+                    center['y'] -= 6000 / scale
                 elif event.key == pygame.K_DOWN:
-                    center['y'] += 10 * scale/100
+                    center['y'] += 6000 / scale
 
             # mouse events
             # zoom in/out events
@@ -114,21 +114,15 @@ def start_game():
                 move_view = False
             if move_view:
                 cm_pos = pygame.mouse.get_pos()
-                if cm_pos[0] - m_pos[0] > 35:
-                    angle_x += 2
-                elif cm_pos[0] - m_pos[0] < -35:
-                    angle_x -= 2
-                if cm_pos[1] - m_pos[1] > 35:
-                    angle_y += 2
-                elif cm_pos[1] - m_pos[1] < -35:
-                    angle_y -= 2
-                else:
+                dx = cm_pos[0] - m_pos[0]
+                dy = cm_pos[1] - m_pos[1]
+                if abs(dx) < 20 and abs(dy) < 20:
                     angle_x += (cm_pos[0] - m_pos[0]) / 100
                     angle_y += (cm_pos[1] - m_pos[1]) / 100
                 m_pos = cm_pos
 
  
-        if sim_delay_counter == sim_delay:
+        if sim_delay_counter == sim_delay and not pause:
             sim_delay_counter = 0
             shapes = sim.step()
         
@@ -142,14 +136,12 @@ def start_game():
             # if points are within bounds draw
             if s_pos[0] > 0 and s_pos[1] > 0 and s_pos[0] < sc_width and s_pos[1] < sc_height and e_pos[0] > 0 and e_pos[1] > 0 and e_pos[0] < sc_width and e_pos[1] < sc_height:
                 pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
+                # draw for debugging
+                pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
             
-            # draw for debugging
-            pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
         sim_delay_counter += 1
  
-        # present the new image to screen:
-        if not pause:
-            pygame.display.update()
+        pygame.display.update()
         
 
     pygame.quit()
