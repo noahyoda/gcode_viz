@@ -18,22 +18,21 @@ class StepObj:
 class Sim:
     def __init__(self):
         # sim vars
-        self.pts = parse.get_end_points()[1:]
+        self.pts, self.e_temp = parse.get_end_points()
+        self.pts = self.pts[1:]
         self.dt = 1    # time step in seconds
         self.step_counter = 0    # step counter
         self.steps = []
-        self.e_temp = parse.e_temp
         # step vars
         self.f_rate = self.pts[0][3]
         self.x_pos = self.pts[0][0]
         self.y_pos = self.pts[0][1]
         self.z_pos = self.pts[0][2]
         # temperature vars
-        self.max_temp = 255
+        self.max_temp = self.e_temp
         self.temp_arr = self.read_temp_file()        
 
     def read_temp_file(self):
-        return (250, 0, 70)
         # read ../gradient.png and return array of colors
         im = Image.open('../gradient.png')
         pix = im.load()
@@ -45,7 +44,10 @@ class Sim:
 
     def get_color_temp(self, temp):
         p = temp / self.max_temp
-        return self.temp_arr[int(p * len(self.temp_arr))]
+        p = min(1,p)
+        i = int(p * len(self.temp_arr))
+        i = i if i < len(self.temp_arr) else len(self.temp_arr) - 1
+        return self.temp_arr[i]
 
     def get_next_point(self, curr, next, f_rate, dt):
         '''
@@ -71,6 +73,8 @@ class Sim:
         '''
         # first move to next point
         self.step_counter += 1
+        if self.step_counter >= len(self.pts):
+            return self.steps
         next = self.pts[self.step_counter]
         # do math to get next point between current and next given f_rate and dt
         f_rate = next[3] / 60   # convert mm/min to mm/sec

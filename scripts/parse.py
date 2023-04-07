@@ -10,8 +10,6 @@ line.godes[0].description # G-code description (e.g. 'G1')
 F or Feed Rate is in mm/min
 '''
 
-e_temp = 0.0
-
 def read_file(file_name, layer_nums):
     line = ''
     actions = []
@@ -28,7 +26,9 @@ def read_file(file_name, layer_nums):
 
             if 'M104' in line.text:
                 # set extruder temp
-                e_temp = float(str(line.text.split('S')[-1].split(';')[0]))
+                e_val = float(str(line.text.split('S')[-1].split(';')[0]))
+                if e_val > 0:
+                    e_temp = e_val
                 continue
             #line.block.gcodes   # list of G-codes
             #line.block.modal_params # list of modal parameters
@@ -56,12 +56,12 @@ def read_file(file_name, layer_nums):
                         actions.append(s)
                 except AttributeError:
                     continue
-    return actions
+    return actions, e_temp
 
 def get_end_points():
     # currently getting every 5th layer, pass empty list to get all layers
     layers = [i for i in range(0, 200, 10)]
-    moves = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode', layers)
+    moves, e_temp = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode', layers)
     pts = []
     f_rate = 0.0
     e_pos = 0.0
@@ -86,7 +86,7 @@ def get_end_points():
         y_last = y
         z_last = z
         pts.append([x, y, z, f, ex])
-    return pts
+    return pts, e_temp
 
 def main(layer):
     #layers = [i for i in range(0, 200, 10)]

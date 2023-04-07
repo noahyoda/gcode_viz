@@ -62,7 +62,7 @@ def start_game():
     bkg = (240, 235, 240)
 
     center, m = sim.get_center()
-    scale = m
+    scale = m * 5
     center = {'x': center[0], 'y': center[1], 'z': center[2]}
     angle_x = 0
     angle_y = 0
