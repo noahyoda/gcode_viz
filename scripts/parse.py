@@ -77,18 +77,15 @@ def get_end_points():
         # check if speed has changed
         f = move['F'] if 'F' in move else f_rate
         # tmp only add if extruding
-        if e_pos < e:
-            pts.append([x, y, z, f])
+        #if e_pos < e:
+        #    pts.append([x, y, z, f])
+        ex = e_pos < e
         f_rate = f
         e_pos = e
         x_last = x
         y_last = y
         z_last = z
-    # plot pts
-    x = [pt[0] for pt in pts]
-    y = [pt[1] for pt in pts]
-    z = [pt[2] for pt in pts]
-    pts = [[x[i], y[i], z[i], f] for i in range(len(x))]
+        pts.append([x, y, z, f, ex])
     return pts
 
 def main(layer):

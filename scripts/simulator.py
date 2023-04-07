@@ -13,12 +13,13 @@ class StepObj:
         self.color = color
         self.age = 0
         self.temp = temp
+        self.draw = True
 
 class Sim:
     def __init__(self):
         # sim vars
         self.pts = parse.get_end_points()[1:]
-        self.dt = 0.1    # time step in seconds
+        self.dt = 1    # time step in seconds
         self.step_counter = 0    # step counter
         self.steps = []
         self.e_temp = parse.e_temp
@@ -32,6 +33,7 @@ class Sim:
         self.temp_arr = self.read_temp_file()        
 
     def read_temp_file(self):
+        return (250, 0, 70)
         # read ../gradient.png and return array of colors
         im = Image.open('../gradient.png')
         pix = im.load()
@@ -74,8 +76,13 @@ class Sim:
         f_rate = next[3] / 60   # convert mm/min to mm/sec
         next_point = self.get_next_point([self.x_pos, self.y_pos, self.z_pos], next, f_rate, self.dt)
         
+        # add next point to self.pts
+        if next_point[0] != next[0] or next_point[1] != next[1] or next_point[2] != next[2]:
+            self.pts.insert(self.step_counter, next_point + [next[3], next[4]])
+
         # then create step object 
         curr = StepObj([self.x_pos, self.y_pos, self.z_pos], next_point, self.get_color_temp(self.e_temp), self.e_temp)
+        curr.draw = next[4]
         # update position vars
         self.x_pos = next_point[0]
         self.y_pos = next_point[1]

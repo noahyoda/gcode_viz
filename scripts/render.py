@@ -70,15 +70,9 @@ def start_game():
     pause = False
     move_view = False
     m_pos = (0,0)
-    sim_delay = 15
+    sim_delay = 5
     sim_delay_counter = 0
     shapes = []
-    
-    '''
-    sim_pts = sim.get_points()
-    
-    scale = m * 10
-    '''
         
     # game loop
     while running:
@@ -94,13 +88,13 @@ def start_game():
                     pause = not pause
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    center['x'] += 6000 / scale
-                elif event.key == pygame.K_LEFT:
                     center['x'] -= 6000 / scale
+                elif event.key == pygame.K_LEFT:
+                    center['x'] += 6000 / scale
                 elif event.key == pygame.K_UP:
-                    center['y'] -= 6000 / scale
-                elif event.key == pygame.K_DOWN:
                     center['y'] += 6000 / scale
+                elif event.key == pygame.K_DOWN:
+                    center['y'] -= 6000 / scale
 
             # mouse events
             # zoom in/out events
@@ -128,6 +122,8 @@ def start_game():
         
         
         for i in shapes:
+            if not i.draw:
+                continue
             # normalize points
             s_pos = [(i.start[0] - center['x']) / m, (i.start[1] - center['y']) / m, (i.start[2] - center['z']) / m]
             e_pos = [(i.end[0] - center['x']) / m, (i.end[1] - center['y']) / m, (i.end[2] - center['z']) / m]
@@ -138,8 +134,9 @@ def start_game():
                 pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
                 # draw for debugging
                 pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
-            
-        sim_delay_counter += 1
+        
+        if not pause:
+            sim_delay_counter += 1
  
         pygame.display.update()
         
