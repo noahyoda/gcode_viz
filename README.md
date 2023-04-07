@@ -1,5 +1,15 @@
 # singed_slices
 
+## Controls
+#### Zoom +/-
+- mouse scroll in/out
+#### Rotate
+- click and drag mouse
+#### Slide (left/right/up/down)
+- arrow keys
+#### Play/Pause Simulation
+- space bar
+
 Tasks Complete
 - Write project description
 - Setup git and other project tools
