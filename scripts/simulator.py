@@ -6,6 +6,8 @@ This file will be used to get points from the parser and report
 the shapes/points/colors to be drawn in the render.
 '''
 
+alpha = 2.3e-5; # thermal conductivity...this is for some metal (I think?), needs updated
+
 class StepObj:
     def __init__(self, start=(0,0,0), end=(0,0,0), color=(255, 0, 70), temp=200):
         self.start = start
@@ -67,6 +69,48 @@ class Sim:
 
         return [x, y, z]
 
+    def update_temp_2d(self):
+        """
+        This provides a temperature update for a single step, goverened by the 2D diffusion equation
+        """
+        
+        for s in self.steps:
+            # For 2D: k-> time, i -> x-coord, j -> y-coord
+            # u[k + 1, i, j] = gamma * (u[k][i+1][j] + u[k][i-1][j] + u[k][i][j+1] + u[k][i][j-1] - 4*u[k][i][j]) + u[k][i][j]
+            
+            u_x_plus = 0; smallest_x_plus = 100; # smallest difference between x-coords in the positive direction
+            u_x_minus = 0; smallest_x_minus = -100; # etc.
+            u_y_plus = 0; smallest_y_plus = 100;
+            u_y_minus = 0; smallest_y_minus = -100;
+            
+            # Find temperature of four surrounding points
+            for ss in self.steps:
+                if s == ss: continue;
+                x_diff = ss.start[0] - s.start[0];
+                y_diff = ss.start[1] - s.start[1];
+                if (x_diff < smallest_x_plus) and (x_diff > 0):
+                    smallest_x_plus = x_diff;
+                    u_x_plus = ss.temp;
+                if (x_diff > smallest_x_minus) and (x_diff < 0):
+                    smallest_x_minus = x_diff;
+                    u_x_minus = ss.temp;
+                if (y_diff < smallest_y_plus) and (y_diff > 0):
+                    smallest_y_plus = y_diff;
+                    u_y_plus = ss.temp;
+                if (y_diff > smallest_y_plus) and (y_diff < 0):
+                    smallest_y_minus = y_diff;
+                    u_y_minus = ss.temp;
+            
+            # Check boundary conditions here? Likely will be ok with air diffusion implemented
+            
+            # Update temperature of current particle by iterating finite-difference
+            dx = 0.1; # ? 
+            gamma = (alpha*self.dt)/(dx**2); # Thermal coefficient
+            s.temp = gamma* (u_x_plus + u_x_minus + u_y_minus - 4*s.temp) + s.temp; 
+            
+            # Update particle color
+            s.color = self.get_color_temp(s.temp)
+
     def step(self):
         '''
         This function will be used to update the simulation
@@ -100,11 +144,12 @@ class Sim:
         for s in self.steps:
             s.age += 1  # amount of time steps this step has been alive
         # then get temperature based on diffusion at age
-        # [TODO] insert diffusion function here
+        
+        # [TODO] insert diffusion function here ----------------------------------------------
         
         # then update color based on temperature
-        for s in self.steps:
-            s.color = self.get_color_temp(s.temp)
+        self.update_temp_2d()
+        
         # then return steps list
         return self.steps
 
