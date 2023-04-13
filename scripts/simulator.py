@@ -18,11 +18,13 @@ class StepObj:
         self.draw = True
 
 class Sim:
-    def __init__(self):
+    def __init__(self, file):
         # sim vars
-        self.pts, self.e_temp = parse.get_end_points()
+        print("Parsing GCode...")
+        self.pts, self.e_temp = parse.get_end_points(file)
+        print("Sim Points Loaded!")
         self.pts = self.pts[1:]
-        self.dt = 1    # time step in seconds
+        self.dt = 5    # time step in seconds
         self.step_counter = 0    # step counter
         self.steps = []
         # step vars

@@ -1,4 +1,4 @@
-import pygame, math
+import pygame, math, sys
 import numpy as np
 import simulator
 
@@ -48,15 +48,17 @@ def project(angle_x, angle_y, vertices, center_pt, scale):
     
     return proj_verts
 
-def start_game():
+def start_game(file):
+
+    print("Initializing simulator...")
+    sim = simulator.Sim(file)
+
+    print("Starting game...")
     # init pygame settings
     pygame.init()
     pygame.display.set_caption("Sliced Simulator")
     screen = pygame.display.set_mode((sc_width, sc_height))
     clock = pygame.time.Clock()
-    cube_center = {'y': sc_height // 2, 'x': sc_width // 2}
-
-    sim = simulator.Sim()
 
     # colors
     bkg = (240, 235, 240)
@@ -64,13 +66,14 @@ def start_game():
     center, m = sim.get_center()
     scale = m * 5
     center = {'x': center[0], 'y': center[1], 'z': center[2]}
+    offset = {'x': int(sc_width/2), 'y': int(sc_height/2)}
     angle_x = 0
     angle_y = 0
     running = True
     pause = False
     move_view = False
     m_pos = (0,0)
-    sim_delay = 5
+    sim_delay = 1
     sim_delay_counter = 0
     shapes = []
         
@@ -88,13 +91,13 @@ def start_game():
                     pause = not pause
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RIGHT:
-                    center['x'] -= 6000 / scale
+                    offset['x'] += 50
                 elif event.key == pygame.K_LEFT:
-                    center['x'] += 6000 / scale
+                    offset['x'] -= 50
                 elif event.key == pygame.K_UP:
-                    center['y'] += 6000 / scale
+                    offset['y'] -= 50
                 elif event.key == pygame.K_DOWN:
-                    center['y'] -= 6000 / scale
+                    offset['y'] += 50
 
             # mouse events
             # zoom in/out events
@@ -129,8 +132,14 @@ def start_game():
             e_pos = [(i.end[0] - center['x']) / m, (i.end[1] - center['y']) / m, (i.end[2] - center['z']) / m]
             s_pos = project(angle_x, angle_y, [s_pos], center, scale)[0]
             e_pos = project(angle_x, angle_y, [e_pos], center, scale)[0]
+            # apply screen offset
+            s_pos = (s_pos[0] + offset['x'], s_pos[1] + offset['y'])
+            e_pos = (e_pos[0] + offset['x'], e_pos[1] + offset['y'])
             # if points are within bounds draw
             if s_pos[0] > 0 and s_pos[1] > 0 and s_pos[0] < sc_width and s_pos[1] < sc_height and e_pos[0] > 0 and e_pos[1] > 0 and e_pos[0] < sc_width and e_pos[1] < sc_height:
+                # apply screen offset
+                #start = (s_pos[0] + offset['x'], s_pos[1] + offset['y'])
+                #end = (e_pos[0] + offset['x'], e_pos[1] + offset['y'])
                 pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
                 # draw for debugging
                 pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
@@ -144,7 +153,11 @@ def start_game():
     pygame.quit()
 
 if __name__ == "__main__":
-    start_game()
+    if len(sys.argv) > 1:
+        file = sys.argv[1]
+        start_game(file)
+    else:
+        start_game('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode')
 
 
 ''' unused code for reference

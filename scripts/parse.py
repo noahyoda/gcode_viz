@@ -58,10 +58,10 @@ def read_file(file_name, layer_nums):
                     continue
     return actions, e_temp
 
-def get_end_points():
+def get_end_points(file_path):
     # currently getting every 5th layer, pass empty list to get all layers
     layers = [i for i in range(0, 200, 10)]
-    moves, e_temp = read_file('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode', layers)
+    moves, e_temp = read_file(file_path, layers)
     pts = []
     f_rate = 0.0
     e_pos = 0.0
