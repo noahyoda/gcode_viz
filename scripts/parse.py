@@ -10,10 +10,19 @@ line.godes[0].description # G-code description (e.g. 'G1')
 F or Feed Rate is in mm/min
 '''
 
-def read_file(file_name, layer_nums):
+def read_file(file_name, n):
     line = ''
     actions = []
-    reading = False
+    z_val = 0.0
+    layer_num = 0
+    # check if file exists
+    try:
+        f = open(file_name)
+        f.close()
+    except FileNotFoundError:
+        print("Error: File not found!")
+        print("path:", file_name)
+        exit()
     with open(file_name, 'r') as f:
         for block in f.readlines():
             # get gcode object
@@ -36,13 +45,8 @@ def read_file(file_name, layer_nums):
                 if 'LAYER:' in line.comment.text:
                     # get layer number
                     layer_num = int(line.comment.text.split(':')[-1].split(';')[0])
-                    if layer_num not in layer_nums and layer_nums != []:
-                        reading = False
-                    else:
-                        reading = True
-                        continue
             
-            if len(line.block.gcodes) > 0 and reading:
+            if len(line.block.gcodes) > 0 and layer_num % n == 0:
                 try:
                     if 'G0' in line.gcodes[0].description or 'G1' in line.gcodes[0].description:
                         s = line.gcodes[0].params
@@ -54,14 +58,16 @@ def read_file(file_name, layer_nums):
                             s['F'] = f_rate
 
                         actions.append(s)
+                        if 'Z' in s and s['Z'] != z_val:
+                            z_val = s['Z']
+                            layer_num += 1
                 except AttributeError:
                     continue
     return actions, e_temp
 
-def get_end_points(file_path):
-    # currently getting every 5th layer, pass empty list to get all layers
-    layers = [i for i in range(0, 200, 10)]
-    moves, e_temp = read_file(file_path, layers)
+def get_end_points(file_path, n):
+    # currently getting every nth layer
+    moves, e_temp = read_file(file_path, n)
     pts = []
     f_rate = 0.0
     e_pos = 0.0
@@ -77,8 +83,6 @@ def get_end_points(file_path):
         # check if speed has changed
         f = move['F'] if 'F' in move else f_rate
         # tmp only add if extruding
-        #if e_pos < e:
-        #    pts.append([x, y, z, f])
         ex = e_pos < e
         f_rate = f
         e_pos = e

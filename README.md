@@ -5,6 +5,13 @@
 - run `python3 render.py`
 - enjoy :\)
 
+## Advanced Controls
+- to specify a gcode file to run, use -f \<path-to-file>
+- to specify how many layers to simulate, use -n \<nth layer> to only simulate every nth layer (default is 10 to save resources)
+
+ **Warning -**
+Increasing the value of n will decrease the resolution of the simulation. It is recommended to not use lower n values if you are short on ram or want to simulate larger data sets. If the simulation is running slow we recommend increasing the value of n.
+
 ## Controls
 #### Zoom in/out
 - mouse scroll up/down
@@ -26,7 +33,8 @@
 - extract temp and speed from gcode script
 
 ## Progress
-- write heat diffusion script
+- finish heat diffusion script
+- write [final report](https://www.overleaf.com/project/642da1880c0552fdb4473e66)
 
 ## Project Board 
 - https://trello.com/b/f7vdvp7X/project-overview

@@ -48,10 +48,10 @@ def project(angle_x, angle_y, vertices, center_pt, scale):
     
     return proj_verts
 
-def start_game(file):
+def start_game(file, n):
 
     print("Initializing simulator...")
-    sim = simulator.Sim(file)
+    sim = simulator.Sim(file, n)
 
     print("Starting game...")
     # init pygame settings
@@ -73,7 +73,7 @@ def start_game(file):
     pause = False
     move_view = False
     m_pos = (0,0)
-    sim_delay = 1
+    sim_delay = 2
     sim_delay_counter = 0
     shapes = []
         
@@ -153,27 +153,11 @@ def start_game(file):
     pygame.quit()
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
+    n = 10
+    if '-n' in sys.argv:
+        n = int(sys.argv[sys.argv.index('-n') + 1])
+    if '-f' in sys.argv:
         file = sys.argv[1]
-        start_game(file)
+        start_game(file, n)
     else:
-        start_game('/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode')
-
-
-''' unused code for reference
-# draw cube sides:
-counter = 1
-for side in cube_sides:
-    side_coords = [
-        (proj_verts[side[0]][0], proj_verts[side[0]][1]),
-        (proj_verts[side[1]][0], proj_verts[side[1]][1]),
-        (proj_verts[side[2]][0], proj_verts[side[2]][1]),
-        (proj_verts[side[3]][0], proj_verts[side[3]][1])
-    ]
-    pygame.draw.polygon(screen, (
-        int(shape[0] * counter * 0.05), int(shape[1] * counter * 0.05),
-        int(shape[2] * counter * 0.05)), side_coords)
-    counter += 1
-
-    
-'''
+        start_game('../samples/cube.gcode', n)

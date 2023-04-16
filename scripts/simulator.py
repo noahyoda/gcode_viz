@@ -18,10 +18,13 @@ class StepObj:
         self.draw = True
 
 class Sim:
-    def __init__(self, file):
+    def __init__(self, file, n):
         # sim vars
         print("Parsing GCode...")
-        self.pts, self.e_temp = parse.get_end_points(file)
+        self.pts, self.e_temp = parse.get_end_points(file, n)
+        if len(self.pts) == 0:
+            print("Error: No points found!")
+            exit()
         print("Sim Points Loaded!")
         self.pts = self.pts[1:]
         self.dt = 5    # time step in seconds
@@ -38,7 +41,7 @@ class Sim:
 
     def read_temp_file(self):
         # read ../gradient.png and return array of colors
-        im = Image.open('../gradient.png')
+        im = Image.open('/home/nDev/Documents/school/sci_viz/singed_slices/gradient.png')
         pix = im.load()
         # read first row of pixels into array
         arr = []
