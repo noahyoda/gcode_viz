@@ -41,7 +41,7 @@ class Sim:
 
     def read_temp_file(self):
         # read ../gradient.png and return array of colors
-        im = Image.open('/home/nDev/Documents/school/sci_viz/singed_slices/gradient.png')
+        im = Image.open('../gradient.png')
         pix = im.load()
         # read first row of pixels into array
         arr = []
