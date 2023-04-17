@@ -6,6 +6,7 @@ import simulator
 sc_width = 800
 sc_height = 600
 fps = 60
+sim_delay = 1
 pause = False
 
 def project(angle_x, angle_y, vertices, center_pt, scale):
@@ -73,7 +74,6 @@ def start_game(file, n):
     pause = False
     move_view = False
     m_pos = (0,0)
-    sim_delay = 2
     sim_delay_counter = 0
     shapes = []
         

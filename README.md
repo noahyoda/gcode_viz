@@ -43,3 +43,11 @@ Increasing the value of n will decrease the resolution of the simulation. It is 
 - https://pypi.org/project/pygcode/0.1.0/
 - https://www.pygame.org/docs/
 - https://marlinfw.org/meta/gcode/
+
+#### 3d Files
+- [Arch](https://www.thingiverse.com/thing:2135190)
+- [Octopus](https://www.thingiverse.com/thing:3495390)
+- [Teapot](https://www.thingiverse.com/thing:821)
+
+#### Gcode File(s)
+- [Fullcontrol Pin Support](https://fullcontrol.xyz/#/models/67cf20)

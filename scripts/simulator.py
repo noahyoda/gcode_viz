@@ -6,6 +6,7 @@ This file will be used to get points from the parser and report
 the shapes/points/colors to be drawn in the render.
 '''
 
+# thermal diffusivity of iron in m^2/s
 alpha = 2.3e-5; # thermal conductivity...this is for some metal (I think?), needs updated
 
 class StepObj:
@@ -27,7 +28,7 @@ class Sim:
             exit()
         print("Sim Points Loaded!")
         self.pts = self.pts[1:]
-        self.dt = 5    # time step in seconds
+        self.dt = 2    # time step in seconds
         self.step_counter = 0    # step counter
         self.steps = []
         # step vars
