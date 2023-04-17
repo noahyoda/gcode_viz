@@ -1,7 +1,12 @@
 # singed_slices
 
+## Installation
+- clone repo onto local machine
+- cd into repo directory
+- run 'pip install -r requirements.txt'
+
 ## How to run
-- cd into script directory
+- cd into `./scripts/` directory
 - run `python3 render.py`
 - enjoy :\)
 
