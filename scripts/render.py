@@ -138,8 +138,6 @@ def start_game(file, n):
             # if points are within bounds draw
             if s_pos[0] > 0 and s_pos[1] > 0 and s_pos[0] < sc_width and s_pos[1] < sc_height and e_pos[0] > 0 and e_pos[1] > 0 and e_pos[0] < sc_width and e_pos[1] < sc_height:
                 # apply screen offset
-                #start = (s_pos[0] + offset['x'], s_pos[1] + offset['y'])
-                #end = (e_pos[0] + offset['x'], e_pos[1] + offset['y'])
                 pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
                 # draw for debugging
                 pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
@@ -157,7 +155,7 @@ if __name__ == "__main__":
     if '-n' in sys.argv:
         n = int(sys.argv[sys.argv.index('-n') + 1])
     if '-f' in sys.argv:
-        file = sys.argv[1]
+        file = sys.argv[sys.argv.index('-f') + 1]
         start_game(file, n)
     else:
         start_game('../samples/cube.gcode', n)

@@ -149,9 +149,6 @@ class Sim:
         # first update every step age
         for s in self.steps:
             s.age += 1  # amount of time steps this step has been alive
-        # then get temperature based on diffusion at age
-        
-        # [TODO] insert diffusion function here ----------------------------------------------
         
         # then update color based on temperature
         self.update_temp_2d()
@@ -181,10 +178,3 @@ class Sim:
         m = max(max_x, max_y, max_z)
         
         return [ax, ay, az], m
-
-# tmp function for debugging renderer
-def get_points():
-    # get the points from the parser
-    pts = parse.get_end_points()[1:]
-
-    return pts
