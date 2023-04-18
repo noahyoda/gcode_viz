@@ -6,8 +6,8 @@ This file will be used to get points from the parser and report
 the shapes/points/colors to be drawn in the render.
 '''
 
-alpha = 0.13e-4; # thermal diffusivity of PLA
-plate_temp = 20; # set too room temp for now
+alpha = 0.13e-3; # thermal diffusivity of PLA
+plate_temp = 100; # set to room temp for now
 
 class StepObj:
     def __init__(self, start=(0,0,0), end=(0,0,0), color=(255, 0, 70), temp=200):
@@ -118,13 +118,13 @@ class Sim:
                     u_z_minus = ss.temp;
             
             # Account for heating plate
-            if s.end[2] == 0.2:
+            if s.end[2] <= 0.3:
                 u_z_minus = plate_temp;
             
             # Update temperature of current particle by iterating finite-difference
-            dx = 0.1; 
-            dy = 0.1; 
-            dz = 0.1; 
+            dx = 0.2; 
+            dy = 0.2; 
+            dz = 0.2; 
             gamma = [(alpha*self.dt)/(dx**2), (alpha*self.dt)/(dy**2), (alpha*self.dt)/(dz**2)]; # Thermal coefficient
             
             s.temp = gamma[0]*(u_x_minus - 2*s.temp + u_x_plus) + (
