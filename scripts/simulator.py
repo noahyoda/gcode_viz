@@ -75,6 +75,62 @@ class Sim:
 
         return [x, y, z]
 
+    def update_temp_3d(self):
+        """
+        This provides a temperature update for a single step, goverened by the 3D diffusion equation
+        """
+        
+        for s in self.steps:
+            # For 2D: l-> time, i -> x-coord, j -> y-coord, k -> z-coord
+            #u[l + 1, i, j, k] = u[l][i][j][k] + gamma_x*(u[l][i-1][j][k]-2*u[l][i][j][k]+u[l][i+1][j][k]) + gamma_y*(etc)
+            
+            u_x_plus = 0; smallest_x_plus = 100; # smallest difference between x-coords in the positive direction
+            u_x_minus = 0; smallest_x_minus = -100; # etc.
+            u_y_plus = 0; smallest_y_plus = 100;
+            u_y_minus = 0; smallest_y_minus = -100;
+            u_z_plus = 0; smallest_z_plus = 100;
+            u_z_minus = 0; smallest_z_minus = -100;
+            
+            # Find temperature of four surrounding points
+            for ss in self.steps:
+                if s == ss: continue;
+                x_diff = ss.start[0] - s.start[0];
+                y_diff = ss.start[1] - s.start[1];
+                z_diff = ss.start[2] - s.start[2];
+                if (x_diff < smallest_x_plus) and (x_diff > 0):
+                    smallest_x_plus = x_diff;
+                    u_x_plus = ss.temp;
+                if (x_diff > smallest_x_minus) and (x_diff < 0):
+                    smallest_x_minus = x_diff;
+                    u_x_minus = ss.temp;
+                if (y_diff < smallest_y_plus) and (y_diff > 0):
+                    smallest_y_plus = y_diff;
+                    u_y_plus = ss.temp;
+                if (y_diff > smallest_y_plus) and (y_diff < 0):
+                    smallest_y_minus = y_diff;
+                    u_y_minus = ss.temp;
+                if (z_diff < smallest_z_plus) and (z_diff > 0):
+                    smallest_z_plus = z_diff;
+                    u_y_plus = ss.temp;
+                if (z_diff > smallest_z_plus) and (z_diff < 0):
+                    smallest_z_minus = z_diff;
+                    u_z_minus = ss.temp;
+            
+            # Check boundary conditions here? Likely will be ok with air diffusion implemented
+            
+            # Update temperature of current particle by iterating finite-difference
+            dx = 0.1; 
+            dy = 0.1; 
+            dz = 0.1; 
+            gamma = [(alpha*self.dt)/(dx**2), (alpha*self.dt)/(dy**2), (alpha*self.dt)/(dz**2)]; # Thermal coefficient
+            
+            s.temp = gamma[0]*(u_x_minus - 2*s.temp + u_x_plus) + (
+                gamma[1]*(u_y_minus - 2*s.temp + u_y_plus)) + (
+                    gamma[2]*(u_z_minus - 2*s.temp + u_z_plus)) + s.temp;
+            
+            # Update particle color
+            s.color = self.get_color_temp(s.temp)
+
     def update_temp_2d(self):
         """
         This provides a temperature update for a single step, goverened by the 2D diffusion equation
