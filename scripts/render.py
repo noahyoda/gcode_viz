@@ -121,8 +121,11 @@ def start_game(file, n):
  
         if sim_delay_counter == sim_delay and not pause:
             sim_delay_counter = 0
-            shapes = sim.step()
-        
+            #shapes = sim.step()
+            sim.multi_step()
+            
+        if not pause and sim.ready:
+            shapes = sim.get_steps()
         
         for i in shapes:
             if not i.draw:
@@ -158,4 +161,6 @@ if __name__ == "__main__":
         file = sys.argv[sys.argv.index('-f') + 1]
         start_game(file, n)
     else:
-        start_game('../samples/cube.gcode', n)
+        #start_game('../samples/cube.gcode', n)
+        path = '/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode'
+        start_game(path, n)

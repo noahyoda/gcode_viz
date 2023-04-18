@@ -1,4 +1,4 @@
-import parse
+import parse, threading
 from PIL import Image
 
 '''
@@ -8,6 +8,7 @@ the shapes/points/colors to be drawn in the render.
 
 alpha = 0.13e-3; # thermal diffusivity of PLA
 plate_temp = 50; # set to room temp for now
+lock = threading.Lock()
 
 class StepObj:
     def __init__(self, start=(0,0,0), end=(0,0,0), color=(255, 0, 70), temp=200):
@@ -38,11 +39,13 @@ class Sim:
         self.z_pos = self.pts[0][2]
         # temperature vars
         self.max_temp = self.e_temp
-        self.temp_arr = self.read_temp_file()        
+        self.temp_arr = self.read_temp_file()   
+        self.ready = True
 
     def read_temp_file(self):
         # read ../gradient.png and return array of colors
-        im = Image.open('../gradient.png')
+        pre = '/home/nDev/Documents/school/sci_viz/singed_slices/'
+        im = Image.open(pre + 'gradient.png')
         pix = im.load()
         # read first row of pixels into array
         arr = []
@@ -179,44 +182,18 @@ class Sim:
             # Update particle color
             s.color = self.get_color_temp(s.temp)
 
-    def step(self):
-        '''
-        This function will be used to update the simulation
-        '''
-        # first move to next point
-        self.step_counter += 1
-        if self.step_counter >= len(self.pts):
-            return self.steps
-        next = self.pts[self.step_counter]
-        # do math to get next point between current and next given f_rate and dt
-        f_rate = next[3] / 60   # convert mm/min to mm/sec
-        next_point = self.get_next_point([self.x_pos, self.y_pos, self.z_pos], next, f_rate, self.dt)
-        
-        # add next point to self.pts
-        if next_point[0] != next[0] or next_point[1] != next[1] or next_point[2] != next[2]:
-            self.pts.insert(self.step_counter, next_point + [next[3], next[4]])
+    def multi_step(self):
+        if self.ready:
+            self.ready = False
+            step_thread = threading.Thread(target=step, args=([self]))
+            step_thread.start()
 
-        # then create step object 
-        curr = StepObj([self.x_pos, self.y_pos, self.z_pos], next_point, self.get_color_temp(self.e_temp), self.e_temp)
-        curr.draw = next[4]
-        # update position vars
-        self.x_pos = next_point[0]
-        self.y_pos = next_point[1]
-        self.z_pos = next_point[2]
-
-        # then add step object to steps list
-        self.steps.append(curr)
-
-        # then update temperatures and step colors
-        # first update every step age
-        for s in self.steps:
-            s.age += 1  # amount of time steps this step has been alive
-        
-        # then update color based on temperature
-        self.update_temp_3d()
-        
-        # then return steps list
-        return self.steps
+    
+    def get_steps(self):
+        lock.acquire()
+        tmp = self.steps
+        lock.release()
+        return tmp
 
     def get_center(self):
         # get center of points
@@ -240,3 +217,45 @@ class Sim:
         m = max(max_x, max_y, max_z)
         
         return [ax, ay, az], m
+
+def step(self):
+    '''
+    This function will be used to update the simulation
+    '''
+    # first move to next point
+    self.step_counter += 1
+    if self.step_counter >= len(self.pts):
+        return
+    next = self.pts[self.step_counter]
+    # do math to get next point between current and next given f_rate and dt
+    f_rate = next[3] / 60   # convert mm/min to mm/sec
+    next_point = self.get_next_point([self.x_pos, self.y_pos, self.z_pos], next, f_rate, self.dt)
+    
+    # add next point to self.pts
+    if next_point[0] != next[0] or next_point[1] != next[1] or next_point[2] != next[2]:
+        self.pts.insert(self.step_counter, next_point + [next[3], next[4]])
+
+    # then create step object 
+    curr = StepObj([self.x_pos, self.y_pos, self.z_pos], next_point, self.get_color_temp(self.e_temp), self.e_temp)
+    curr.draw = next[4]
+    # update position vars
+    self.x_pos = next_point[0]
+    self.y_pos = next_point[1]
+    self.z_pos = next_point[2]
+
+    # then add step object to steps list
+    lock.acquire()
+    self.steps.append(curr)
+    lock.release()
+
+    # then update temperatures and step colors
+    # first update every step age
+    for s in self.steps:
+        s.age += 1  # amount of time steps this step has been alive
+    
+    # then update color based on temperature
+    self.update_temp_3d()
+    
+    # then return steps list
+    self.ready = True
+    return
