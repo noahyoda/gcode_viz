@@ -36,10 +36,13 @@ Increasing the value of n will decrease the resolution of the simulation. It is 
 - write shape viewing script
 - write simulation drawing script
 - extract temp and speed from gcode script
+- write 2d diffusion equation
+- write 3d diffusion equation
+- implement atmospheric diffusion
 
 ## Progress
-- finish heat diffusion script
 - write [final report](https://www.overleaf.com/project/642da1880c0552fdb4473e66)
+- implement diffusion for heating plate
 
 ## Project Board 
 - https://trello.com/b/f7vdvp7X/project-overview

@@ -6,8 +6,8 @@ This file will be used to get points from the parser and report
 the shapes/points/colors to be drawn in the render.
 '''
 
-# thermal diffusivity of iron in m^2/s
-alpha = 2.3e-5; # thermal conductivity...this is for some metal (I think?), needs updated
+alpha = 0.13e-4; # thermal diffusivity of PLA
+plate_temp = 20; # set too room temp for now
 
 class StepObj:
     def __init__(self, start=(0,0,0), end=(0,0,0), color=(255, 0, 70), temp=200):
@@ -84,12 +84,13 @@ class Sim:
             # For 2D: l-> time, i -> x-coord, j -> y-coord, k -> z-coord
             #u[l + 1, i, j, k] = u[l][i][j][k] + gamma_x*(u[l][i-1][j][k]-2*u[l][i][j][k]+u[l][i+1][j][k]) + gamma_y*(etc)
             
-            u_x_plus = 0; smallest_x_plus = 100; # smallest difference between x-coords in the positive direction
-            u_x_minus = 0; smallest_x_minus = -100; # etc.
-            u_y_plus = 0; smallest_y_plus = 100;
-            u_y_minus = 0; smallest_y_minus = -100;
-            u_z_plus = 0; smallest_z_plus = 100;
-            u_z_minus = 0; smallest_z_minus = -100;
+            # Set initial points to room temperature: points that are on the edge will then effectively undergo atmospheric diffusion
+            u_x_plus = 20; smallest_x_plus = 100; # smallest difference between x-coords in the positive direction
+            u_x_minus = 20; smallest_x_minus = -100; # etc.
+            u_y_plus = 20; smallest_y_plus = 100;
+            u_y_minus = 20; smallest_y_minus = -100;
+            u_z_plus = 20; smallest_z_plus = 100;
+            u_z_minus = 20; smallest_z_minus = -100;
             
             # Find temperature of four surrounding points
             for ss in self.steps:
@@ -116,7 +117,9 @@ class Sim:
                     smallest_z_minus = z_diff;
                     u_z_minus = ss.temp;
             
-            # Check boundary conditions here? Likely will be ok with air diffusion implemented
+            # Account for heating plate
+            if s.end[2] == 0.2:
+                u_z_minus = plate_temp;
             
             # Update temperature of current particle by iterating finite-difference
             dx = 0.1; 
@@ -127,6 +130,9 @@ class Sim:
             s.temp = gamma[0]*(u_x_minus - 2*s.temp + u_x_plus) + (
                 gamma[1]*(u_y_minus - 2*s.temp + u_y_plus)) + (
                     gamma[2]*(u_z_minus - 2*s.temp + u_z_plus)) + s.temp;
+            
+            # Set lower temperature limit to room temperature
+            if s.temp < 20: s.temp = 20;
             
             # Update particle color
             s.color = self.get_color_temp(s.temp)
