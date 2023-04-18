@@ -58,7 +58,10 @@ class Sim:
         p = min(1,p)
         i = int(p * len(self.temp_arr))
         i = i if i < len(self.temp_arr) else len(self.temp_arr) - 1
-        return self.temp_arr[i]
+
+        c = list(self.temp_arr[i])
+        c += [int(p * 255)]
+        return c
 
     def get_next_point(self, curr, next, f_rate, dt):
         '''
