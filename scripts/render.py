@@ -161,6 +161,6 @@ if __name__ == "__main__":
         file = sys.argv[sys.argv.index('-f') + 1]
         start_game(file, n)
     else:
-        #start_game('../samples/cube.gcode', n)
-        path = '/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode'
-        start_game(path, n)
+        start_game('../samples/cube.gcode', n)
+        #path = '/home/nDev/Documents/school/sci_viz/singed_slices/samples/cube.gcode'
+        #start_game(path, n)
