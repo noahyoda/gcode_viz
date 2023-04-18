@@ -207,7 +207,7 @@ class Sim:
             s.age += 1  # amount of time steps this step has been alive
         
         # then update color based on temperature
-        self.update_temp_2d()
+        self.update_temp_3d()
         
         # then return steps list
         return self.steps
