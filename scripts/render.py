@@ -5,8 +5,8 @@ import simulator
 # window settings
 sc_width = 800
 sc_height = 600
-fps = 60
-sim_delay = 1
+fps = 120
+sim_delay = 2
 pause = False
 
 def project(angle_x, angle_y, vertices, center_pt, scale):

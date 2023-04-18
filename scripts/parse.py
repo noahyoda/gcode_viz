@@ -1,6 +1,4 @@
-import sys
 from pygcode import *
-from matplotlib import pyplot as plt
 
 '''
 line.comment.text   # comment text
