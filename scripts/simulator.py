@@ -7,7 +7,7 @@ the shapes/points/colors to be drawn in the render.
 '''
 
 alpha = 0.13e-3; # thermal diffusivity of PLA
-plate_temp = 100; # set to room temp for now
+plate_temp = 50; # set to room temp for now
 
 class StepObj:
     def __init__(self, start=(0,0,0), end=(0,0,0), color=(255, 0, 70), temp=200):

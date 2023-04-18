@@ -140,7 +140,7 @@ def start_game(file, n):
                 # apply screen offset
                 pygame.draw.line(screen, i.color, s_pos, e_pos, 10)
                 # draw for debugging
-                pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
+                #pygame.draw.circle(screen, (0, 255, 70), e_pos, 2)
         
         if not pause:
             sim_delay_counter += 1
